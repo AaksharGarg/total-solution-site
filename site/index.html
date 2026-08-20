@@ -240,8 +240,6 @@ p{margin:0;line-height:1.7}
 }
 .hero-grid{
   max-width:1180px;margin:0 auto;
-  /* lifts the copy and the cover above .hero-scene (z-index:0) */
-  position:relative;z-index:1;
   display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;
 }
 .hero-copy .eyebrow{color:var(--gold-bright)}
@@ -316,6 +314,18 @@ p{margin:0;line-height:1.7}
    being small, slow and translucent rather than by being occluded. z-index 2
    keeps it under the nav (50), the menu backdrop (45) and the FAB (40). */
 .leaf-canvas{position:fixed;inset:0;z-index:2;pointer-events:none}
+
+/* Artwork sits ABOVE the leaf layer (and, in the hero, above .hero-scene).
+   The diagrams and the book covers read as solid objects on the page, so a
+   leaf drifting across them looked like dirt on the glass. Each of these
+   boxes is itself transparent apart from its own content, so leaves still
+   drift through the gaps around and between them. */
+.hero-grid,
+.about-photo,
+.grid15,
+.bands,
+.dl-book,
+.viewer-frame{position:relative;z-index:3}
 
 /* ---------- hero forest & pond ---------- */
 .hero-scene{
