@@ -650,6 +650,13 @@ p{margin:0;line-height:1.7}
   box-shadow:0 14px 40px -22px rgba(13,15,48,.45);
 }
 .dg-svg{display:block;width:100%;height:auto;border-radius:12px;-webkit-tap-highlight-color:transparent}
+/* Everything drawn over the plan — the pulse rings and their dots, the 2.5 km
+   dimension line, the band separators, the rulers and brackets — is decoration.
+   SVG hit-tests strokes as well as fills, so without this a tap landing on a
+   pulse dot or a separator hits the decoration instead of the block underneath
+   and appears to do nothing. */
+.reach,.walk,.seps,.dg-dim,.ruler,.dg-side,.dg-plate,.dg-frame,.pv-svg{pointer-events:none}
+.grid15 .cellg,.bands .bandg,.bands .pondg{pointer-events:auto}
 .dg-t{font-family:var(--font-en-body);font-weight:800;-webkit-user-select:none;user-select:none}
 .dg-plate{fill:#fffdf7;stroke:none}
 .dg-frame{fill:none;stroke:var(--navy);stroke-width:2}
@@ -1620,13 +1627,25 @@ footer a:hover{text-decoration:underline}
         var k = el && (el.getAttribute('data-kind') || el.getAttribute('data-band'));
         out.innerHTML = (k && texts[k]) ? texts[k] : def;
       }
-      // A real mouse gets hover-to-read; touch and pen only react to a tap, so a
-      // tap never fires enter-then-click and toggles itself straight back off.
+      // A tap fires focus BEFORE click, so focus opens the block and a click that
+      // toggled "already selected" back off would shut it again within the same
+      // tap — which is why it used to take two. Decide from the state as it stood
+      // at pointerdown, before focus could change it. A mouse is governed by hover
+      // alone, so its clicks are left to do nothing.
       items.forEach(function(el){
-        el.addEventListener('click', function(){ show(el.classList.contains('is-on') ? null : el); });
+        var wasOn = false, downType = '';
+        el.addEventListener('pointerdown', function(e){
+          downType = e.pointerType;
+          wasOn = el.classList.contains('is-on');
+        });
+        el.addEventListener('click', function(){
+          if (downType === 'mouse') return;
+          show(wasOn ? null : el);
+          downType = '';
+        });
         el.addEventListener('keydown', function(e){
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(el.classList.contains('is-on') ? null : el); }
-          if (e.key === 'Escape') show(null);
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(el); }
+          if (e.key === 'Escape') { show(null); el.blur(); }
         });
         el.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') show(el); });
         el.addEventListener('focus', function(){ show(el); });
