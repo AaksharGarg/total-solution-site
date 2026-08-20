@@ -593,7 +593,11 @@ p{margin:0;line-height:1.7}
 .dl-book{position:relative;display:flex;justify-content:center}
 .dl-book img{width:min(300px,80%);border-radius:10px;border:7px solid #fff;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);transform:rotate(-4deg)}
 .dl-badge{
-  position:absolute;top:-14px;right:calc(50% - min(150px, 40%));
+  /* The cover carries transform:rotate(-4deg), which makes it a stacking
+     context painted in the positioned-descendant layer. The badge is absolute
+     with z-index:auto and sits EARLIER in the DOM, so without a z-index here
+     the cover paints straight over it and only a red sliver shows. */
+  position:absolute;z-index:1;top:-14px;right:calc(50% - min(150px, 40%));
   background:var(--red);color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em;
   padding:8px 14px;border-radius:999px;box-shadow:0 10px 20px -8px rgba(200,16,46,.7);
   transform:rotate(6deg);
