@@ -1616,16 +1616,49 @@ footer a:hover{text-decoration:underline}
 
   // model-city diagrams — hover / tap a block to read what it holds
   (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Stacked on a phone the readout sits below the fold, so a tap would open an
+    // explanation the reader cannot see. Bring the drawing and its readout into
+    // view together — and only when they are not already both on screen, so
+    // tapping from one block to the next doesn't keep nudging the page.
+    function fitInView(root, out, el){
+      var nav    = document.getElementById('nav');
+      var top    = (nav ? nav.getBoundingClientRect().height : 0) + 10;
+      var bottom = window.innerHeight - 10;
+      var avail  = bottom - top;
+      if (avail <= 60) return;
+      // a clipped <g> reports the whole plan as its box, so measure the block's
+      // own hit rect instead
+      var hit = el && (el.querySelector('.cellhit,.bandhit') || el.querySelector('rect')) || el;
+      var r = root.getBoundingClientRect();
+      var o = out.getBoundingClientRect();
+      var h = hit ? hit.getBoundingClientRect() : r;
+      var whole = o.bottom - r.top, delta;
+      if (whole <= avail) {
+        if (r.top >= top && o.bottom <= bottom) return;
+        delta = r.top - (top + (avail - whole) / 2);          // drawing and readout, centred
+      } else {
+        var span = o.bottom - h.top;                          // tapped block down to the end of the text
+        if (h.top >= top && o.bottom <= bottom) return;
+        if (span <= avail) delta = h.top - (top + (avail - span) / 2);
+        else delta = (o.height <= avail) ? (o.bottom - bottom) : (o.top - top);
+      }
+      if (Math.abs(delta) < 6) return;
+      window.scrollBy({ top: delta, left: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+    }
+
     function wire(rootId, outId, sel, texts, def){
       var root = document.getElementById(rootId);
       var out  = document.getElementById(outId);
       if (!root || !out) return;
       var items = [].slice.call(root.querySelectorAll(sel));
-      function show(el){
+      function show(el, fit){
         items.forEach(function(i){ i.classList.toggle('is-on', i === el); });
         root.classList.toggle('has-sel', !!el);
         var k = el && (el.getAttribute('data-kind') || el.getAttribute('data-band'));
         out.innerHTML = (k && texts[k]) ? texts[k] : def;
+        if (el && fit) fitInView(root, out, el);
       }
       // A tap fires focus BEFORE click, so focus opens the block and a click that
       // toggled "already selected" back off would shut it again within the same
@@ -1640,11 +1673,11 @@ footer a:hover{text-decoration:underline}
         });
         el.addEventListener('click', function(){
           if (downType === 'mouse') return;
-          show(wasOn ? null : el);
+          show(wasOn ? null : el, true);
           downType = '';
         });
         el.addEventListener('keydown', function(e){
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(el); }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(el, true); }
           if (e.key === 'Escape') { show(null); el.blur(); }
         });
         el.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') show(el); });
