@@ -231,7 +231,7 @@ p{margin:0;line-height:1.7}
     radial-gradient(900px 500px at -10% 110%, rgba(200,16,46,.22), transparent 60%),
     linear-gradient(160deg, var(--navy-deep), var(--navy) 55%, var(--navy-soft));
   color:#fff;
-  padding:64px 24px 110px;
+  padding:64px 24px 178px;
   /* .hero is a <header>, so the `section{position:relative}` rule never
      applied to it — .hero-orbit/.deco resolved against the viewport instead
      and escaped this overflow:hidden, widening the page at >=1024px. */
@@ -240,6 +240,8 @@ p{margin:0;line-height:1.7}
 }
 .hero-grid{
   max-width:1180px;margin:0 auto;
+  /* lifts the copy and the cover above .hero-scene (z-index:0) */
+  position:relative;z-index:1;
   display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;
 }
 .hero-copy .eyebrow{color:var(--gold-bright)}
@@ -308,6 +310,36 @@ p{margin:0;line-height:1.7}
 }
 @keyframes floaty{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-14px)}}
 
+/* ---------- falling leaves (site-wide) ---------- */
+/* Every section paints an opaque background, so a canvas *behind* them would
+   never be seen — this layer renders in front instead, and stays subtle by
+   being small, slow and translucent rather than by being occluded. z-index 2
+   keeps it under the nav (50), the menu backdrop (45) and the FAB (40). */
+.leaf-canvas{position:fixed;inset:0;z-index:2;pointer-events:none}
+
+/* ---------- hero forest & pond ---------- */
+.hero-scene{
+  position:absolute;left:0;right:0;bottom:0;width:100%;
+  height:clamp(120px,17vw,230px);
+  z-index:0;pointer-events:none;display:block;
+}
+/* only the two lagging ridges are promoted — .ts-near never moves */
+#tsFar,#tsMid{will-change:transform}
+.ts-ripples ellipse{
+  transform-box:fill-box;transform-origin:center;
+  animation:tsRipple 7s ease-in-out infinite;
+}
+.ts-ripples ellipse:nth-child(2){animation-duration:9s;animation-delay:-2s}
+.ts-ripples ellipse:nth-child(3){animation-duration:8s;animation-delay:-4s}
+.ts-ripples ellipse:nth-child(4){animation-duration:11s;animation-delay:-1s}
+@keyframes tsRipple{0%,100%{transform:scaleX(.92)}50%{transform:scaleX(1.07)}}
+
+@media (prefers-reduced-motion:reduce){
+  /* the forest stays as a still illustration; only the motion goes */
+  .leaf-canvas{display:none}
+  .ts-ripples ellipse{animation:none}
+}
+
 .hero-orbit{position:absolute;border-radius:50%;border:1px dashed rgba(255,255,255,.14)}
 /* The floating ॐ marks and orbit rings land directly behind the headline
    once the hero is single-column — decorative only, so drop them. */
@@ -325,7 +357,7 @@ p{margin:0;line-height:1.7}
   /* Was the worst break on phones: two fr columns + a 56px gap never
      collapsed, so at 360px the copy and the cover were each squeezed into
      ~150px and pushed the page wider than the viewport. */
-  .hero{padding:40px 20px 70px}
+  .hero{padding:40px 20px 132px}
   .hero-grid{grid-template-columns:1fr;gap:40px;text-align:center;justify-items:center}
   .hero-copy{max-width:620px}
   .hero-tag{max-width:none;margin-inline:auto}
@@ -334,7 +366,7 @@ p{margin:0;line-height:1.7}
   .book-wrap{width:min(230px,62%)}
 }
 @media (max-width:560px){
-  .hero{padding:32px 16px 56px}
+  .hero{padding:32px 16px 112px}
   .book-wrap{width:min(190px,55%)}
   .hero-h1{font-size:clamp(24px,7.2vw,32px);line-height:1.35}
   .hero-sub{font-size:clamp(30px,10vw,44px)}
@@ -345,7 +377,6 @@ p{margin:0;line-height:1.7}
   .hero-cta .btn{width:100%;justify-content:center}
 }
 
-.wave-sep{display:block;width:100%;height:70px;margin-top:-2px}
 
 /* ---------- section headings ---------- */
 .section-head{max-width:720px;margin:0 auto 46px;text-align:center}
@@ -800,6 +831,59 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
   </div>
+
+  <!-- forest treeline + pond: the transition from the navy hero into the page.
+       Hand-drawn rather than a stock CC0 silhouette so it matches the palette
+       and adds no extra request to a site that ships one file. -->
+  <svg class="hero-scene" viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="tsPond" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#4b86ba" stop-opacity=".34"/>
+        <stop offset=".45" stop-color="#20507c" stop-opacity=".22"/>
+        <stop offset="1" stop-color="#1c4a72" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="tsMist" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8fb4d8" stop-opacity="0"/>
+        <stop offset=".55" stop-color="#a8c8e4" stop-opacity=".13"/>
+        <stop offset="1" stop-color="#a8c8e4" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="tsMoon" gradientUnits="userSpaceOnUse" cx="1188" cy="66" r="62">
+        <stop offset="0" stop-color="#f4e3bb" stop-opacity=".42"/>
+        <stop offset=".5" stop-color="#f4e3bb" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#f4e3bb" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="tsAbove"><rect x="-40" y="-40" width="1520" height="240"/></clipPath>
+      <clipPath id="tsBelow"><rect x="-40" y="200" width="1520" height="80"/></clipPath>
+    </defs>
+
+    <g class="ts-moon">
+      <circle cx="1188" cy="66" r="62" fill="url(#tsMoon)"/>
+      <circle cx="1188" cy="66" r="12" fill="#f6e8c6" opacity=".5"/>
+    </g>
+
+    <g clip-path="url(#tsAbove)">
+      <path id="tsFar" fill="#3d4593" opacity=".45" d="M-40,292 L-40,172 L-40,172 Q-41,107 -30,101 -22,89 -16,99 -4,104 0,172 L-5,172 3,147 -1,145 7,124 4,122 12,103 15,89 19,103 26,122 23,124 32,145 28,147 36,172 L30,172 39,144 34,141 44,118 40,115 48,94 52,79 56,94 64,115 60,118 70,141 65,144 74,172 L73,172 C71,114 76,76 89,78 102,76 108,114 105,172 L89,172 C84,109 94,68 114,70 135,68 144,109 140,172 L145,172 152,156 148,155 155,141 153,140 159,128 162,119 165,128 171,140 168,141 175,155 172,156 178,172 L171,172 178,153 175,151 182,135 179,133 185,118 188,107 191,118 197,133 195,135 202,151 198,153 205,172 L198,172 206,143 202,140 211,116 208,114 215,92 218,76 222,92 229,114 226,116 234,140 230,143 238,172 L234,172 243,146 238,143 247,122 244,119 251,99 255,86 259,99 266,119 263,122 271,143 267,146 275,172 L263,172 C259,108 269,66 289,68 310,66 319,108 315,172 L320,172 327,153 323,151 331,135 328,133 335,118 338,108 341,118 348,133 345,135 353,151 349,153 356,172 L344,172 C340,127 349,98 367,99 386,98 395,127 391,172 L382,172 393,143 387,140 398,116 394,113 403,91 408,76 412,91 422,113 418,116 428,140 423,143 433,172 L425,172 Q424,111 438,105 447,94 455,103 470,108 475,172 L478,172 C475,119 481,86 493,87 506,86 512,119 509,172 L504,172 Q503,117 512,111 518,101 523,110 533,114 536,172 L534,172 540,153 537,151 544,134 541,132 547,118 550,107 553,118 559,132 556,134 563,151 560,153 567,172 L552,172 C549,134 557,110 576,111 595,110 604,134 600,172 L601,172 608,145 604,142 611,120 609,117 615,96 618,82 621,96 627,117 624,120 632,142 628,145 635,172 L633,172 640,150 636,148 643,129 641,127 646,110 649,98 652,110 658,127 656,129 662,148 659,150 666,172 L651,172 661,144 656,141 667,118 663,115 672,93 677,78 681,93 691,115 686,118 697,141 692,144 702,172 L709,172 C707,127 713,98 727,99 741,98 747,127 744,172 L743,172 749,141 746,138 753,112 750,109 756,85 759,69 762,85 767,109 765,112 772,138 768,141 775,172 L762,172 772,151 767,149 777,132 773,130 781,114 786,103 790,114 798,130 795,132 804,149 800,151 809,172 L807,172 813,147 810,145 817,124 814,122 820,103 823,90 826,103 832,122 829,124 836,145 833,147 839,172 L833,172 Q832,112 843,106 850,95 856,104 867,109 871,172 L865,172 873,143 869,140 878,116 875,113 882,90 886,75 890,90 898,113 894,116 903,140 899,143 907,172 L896,172 906,144 901,141 911,117 907,114 916,93 921,77 925,93 934,114 930,117 941,141 936,144 946,172 L939,172 948,142 943,139 953,113 949,110 958,87 962,71 966,87 974,110 971,113 980,139 976,142 985,172 L983,172 993,147 988,144 998,124 994,121 1003,102 1008,89 1012,102 1021,121 1017,124 1027,144 1022,147 1032,172 L1032,172 1038,141 1035,138 1041,113 1039,110 1044,86 1047,70 1050,86 1056,110 1053,113 1060,138 1057,141 1063,172 L1058,172 C1055,113 1062,75 1076,77 1090,75 1097,113 1094,172 L1089,172 1096,145 1093,142 1100,120 1097,117 1103,97 1106,83 1109,97 1115,117 1113,120 1120,142 1116,145 1123,172 L1113,172 C1110,112 1117,74 1134,76 1151,74 1159,112 1155,172 L1145,172 1155,153 1150,151 1160,136 1156,134 1165,119 1170,109 1174,119 1183,134 1179,136 1190,151 1185,153 1195,172 L1192,172 1200,155 1196,154 1204,140 1201,138 1208,126 1212,117 1216,126 1223,138 1220,140 1228,154 1224,155 1232,172 L1225,172 1234,154 1229,153 1238,138 1235,136 1242,123 1246,113 1250,123 1258,136 1254,138 1263,153 1259,154 1268,172 L1262,172 C1258,119 1267,84 1288,86 1309,84 1318,119 1314,172 L1318,172 1325,156 1322,154 1328,141 1326,139 1332,127 1335,118 1338,127 1344,139 1341,141 1348,154 1345,156 1351,172 L1344,172 1354,141 1349,138 1359,113 1355,110 1363,86 1367,70 1371,86 1379,110 1376,113 1385,138 1381,141 1390,172 L1389,172 1397,145 1393,142 1401,120 1398,117 1405,96 1409,82 1413,96 1420,117 1417,120 1425,142 1421,145 1429,172 L1434,172 C1431,122 1437,90 1450,92 1462,90 1468,122 1465,172 L1480,172 1480,292 Z"/>
+      <path id="tsMid" fill="#222a68" opacity=".8" d="M-40,309 L-40,189 L-48,189 Q-49,139 -33,135 -23,126 -14,133 2,137 8,189 L-2,189 9,170 4,169 15,153 11,151 21,137 26,127 30,137 40,151 36,153 47,169 42,170 53,189 L57,189 66,169 61,167 70,150 67,148 75,133 78,123 82,133 90,148 87,150 96,167 91,169 100,189 L80,189 C75,151 87,127 114,128 142,127 154,151 148,189 L142,189 154,169 148,167 161,150 156,148 167,133 172,122 178,133 189,148 184,150 196,167 190,169 203,189 L198,189 C194,138 203,105 224,107 245,105 254,138 250,189 L236,189 C231,152 242,128 265,129 289,128 299,152 295,189 L287,189 C283,138 292,105 313,107 334,105 343,138 339,189 L330,189 C325,144 336,115 361,116 385,115 396,144 391,189 L384,189 395,164 390,162 402,142 397,139 407,120 412,107 418,120 428,139 423,142 435,162 430,164 441,189 L443,189 453,173 448,172 458,159 454,157 463,145 468,137 472,145 481,157 477,159 488,172 483,173 493,189 L489,189 497,170 493,168 502,152 498,150 506,135 510,125 514,135 521,150 518,152 527,168 522,170 531,189 L521,189 C517,134 526,98 548,100 569,98 578,134 574,189 L560,189 Q558,126 576,120 588,109 598,119 618,123 624,189 L618,189 631,172 624,171 638,157 633,155 645,142 651,134 657,142 669,155 664,157 678,171 671,172 685,189 L696,189 Q695,118 707,111 714,99 721,109 733,115 737,189 L726,189 Q726,118 738,111 746,99 753,110 766,115 771,189 L761,189 773,165 767,162 779,142 774,140 785,121 791,108 796,121 807,140 802,142 815,162 809,165 821,189 L808,189 Q807,120 823,113 833,101 842,111 860,116 865,189 L867,189 C864,156 871,134 887,135 903,134 910,156 907,189 L899,189 C896,155 903,133 919,134 936,133 943,155 940,189 L930,189 939,173 934,171 943,158 940,156 948,144 952,135 955,144 963,156 960,158 969,171 965,173 973,189 L960,189 C955,155 966,133 992,134 1018,133 1029,155 1024,189 L1030,189 Q1029,140 1042,135 1050,126 1058,134 1072,137 1076,189 L1068,189 C1063,138 1074,105 1096,106 1119,105 1130,138 1125,189 L1114,189 1126,164 1120,162 1133,141 1128,139 1139,120 1144,107 1149,120 1160,139 1155,141 1168,162 1162,164 1174,189 L1169,189 1179,163 1174,160 1184,139 1180,136 1189,116 1193,102 1198,116 1206,136 1202,139 1213,160 1208,163 1217,189 L1211,189 C1207,150 1216,124 1237,126 1258,124 1267,150 1263,189 L1258,189 1269,170 1264,168 1276,152 1271,150 1282,135 1287,125 1292,135 1303,150 1298,152 1310,168 1305,170 1316,189 L1309,189 Q1308,128 1323,122 1333,112 1341,121 1357,125 1362,189 L1347,189 1360,163 1354,160 1367,138 1362,135 1374,115 1380,101 1386,115 1398,135 1393,138 1407,160 1400,163 1413,189 L1410,189 1420,162 1415,160 1425,138 1421,135 1429,115 1434,101 1438,115 1446,135 1443,138 1452,160 1448,162 1457,189 L1447,189 1458,173 1452,171 1465,158 1460,156 1470,144 1476,135 1481,144 1491,156 1487,158 1499,171 1493,173 1505,189 L1480,189 1480,309 Z"/>
+      <path id="tsNear" fill="#070c26" d="M-40,324 L-40,204 L-53,204 C-58,171 -46,149 -20,151 6,149 18,171 13,204 L-2,204 12,188 5,187 20,174 14,172 27,160 34,152 40,160 53,172 48,174 63,187 56,188 70,204 L68,204 78,191 73,190 84,180 80,179 89,169 94,162 99,169 109,179 104,180 115,190 110,191 121,204 L109,204 Q108,158 128,153 140,145 152,152 173,156 180,204 L174,204 C168,175 182,157 211,158 241,157 255,175 249,204 L227,204 C220,180 237,164 273,165 309,164 325,180 318,204 L315,204 Q314,158 335,153 349,145 361,152 384,155 391,204 L371,204 388,183 379,181 397,163 390,161 406,144 413,133 421,144 437,161 430,163 448,181 439,183 456,204 L450,204 C444,172 456,151 483,152 510,151 522,172 516,204 L497,204 Q495,148 517,143 531,133 544,141 567,145 575,204 L578,204 Q577,152 594,147 605,138 614,146 632,150 639,204 L622,204 Q620,165 642,161 656,155 669,161 693,163 701,204 L687,204 C681,175 694,156 724,157 753,156 767,175 761,204 L747,204 760,184 754,182 767,166 762,164 774,149 779,138 785,149 797,164 792,166 805,182 799,184 812,204 L795,204 C789,167 804,143 837,144 871,143 886,167 879,204 L868,204 Q866,146 886,140 899,130 911,139 932,143 939,204 L930,204 C925,159 937,129 965,131 993,129 1005,159 1000,204 L1001,204 Q1000,166 1016,162 1026,155 1035,161 1051,164 1057,204 L1035,204 Q1033,161 1057,157 1072,149 1085,156 1110,159 1118,204 L1108,204 C1103,166 1114,142 1139,143 1164,142 1175,166 1170,204 L1159,204 Q1158,153 1177,148 1190,139 1202,147 1223,151 1230,204 L1225,204 C1221,175 1231,156 1252,157 1273,156 1282,175 1278,204 L1257,204 1275,185 1266,183 1285,168 1278,166 1294,151 1302,141 1311,151 1327,166 1320,168 1339,183 1330,185 1348,204 L1359,204 Q1358,170 1374,166 1384,160 1393,165 1410,168 1416,204 L1400,204 1414,190 1407,188 1421,176 1416,175 1428,164 1434,156 1440,164 1453,175 1447,176 1461,188 1455,190 1468,204 L1480,204 1480,324 Z"/>
+    </g>
+
+    <rect x="-40" y="200" width="1520" height="62" fill="url(#tsPond)"/>
+
+    <g clip-path="url(#tsBelow)" opacity=".26">
+      <g transform="translate(0,400) scale(1,-1)">
+        <use href="#tsMid"/><use href="#tsNear"/>
+      </g>
+    </g>
+
+    <rect x="-40" y="184" width="1520" height="34" fill="url(#tsMist)"/>
+
+    <g class="ts-ripples" fill="none" stroke="#cfe6f7" stroke-linecap="round">
+      <ellipse cx="330" cy="215" rx="128" ry="3" stroke-width="1.4" opacity=".18"/>
+      <ellipse cx="880" cy="226" rx="170" ry="4" stroke-width="1.3" opacity=".15"/>
+      <ellipse cx="560" cy="240" rx="146" ry="3" stroke-width="1.2" opacity=".12"/>
+      <ellipse cx="1130" cy="250" rx="118" ry="3" stroke-width="1.1" opacity=".10"/>
+    </g>
+  </svg>
 </header>
 
 <!-- ================= ABOUT ================= -->
@@ -1102,8 +1186,14 @@ footer a:hover{text-decoration:underline}
 
 <a href="#home" class="back-to-top" id="backTop" aria-label="Back to top">↑</a>
 
+<canvas class="leaf-canvas" id="leafCanvas" aria-hidden="true"></canvas>
+
 <script>
 (function(){
+  // declared up here because onScroll() runs during this script, before the
+  // ambient-nature section below is reached
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   // nav scroll state
   var nav = document.getElementById('nav');
   var backTop = document.getElementById('backTop');
@@ -1111,6 +1201,7 @@ footer a:hover{text-decoration:underline}
     var y = window.scrollY || window.pageYOffset;
     nav.classList.toggle('scrolled', y > 40);
     backTop.classList.toggle('show', y > 600);
+    if (!parallaxQueued) { parallaxQueued = true; requestAnimationFrame(parallax); }
   }
   document.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
@@ -1196,6 +1287,172 @@ footer a:hover{text-decoration:underline}
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ================= ambient nature =================
+  // ---- hero forest parallax ----
+  // The scene scrolls away with the hero, so to make a ridge read as *distant*
+  // we nudge it back down by a fraction of the scroll. Capped at 14px: the
+  // treelines are clipped at the waterline, and a larger shift would sink them
+  // into the pond.
+  var tsFar = document.getElementById('tsFar');
+  var tsMid = document.getElementById('tsMid');
+  var heroEl = document.getElementById('home');
+  var parallaxQueued = false;
+
+  function parallax(){
+    parallaxQueued = false;
+    if (!tsFar || reduceMotion.matches) return;
+    var y = window.scrollY || window.pageYOffset;
+    if (y > heroEl.offsetHeight) return;   // hero is gone; leave it parked
+    tsFar.style.transform = 'translate3d(0,' + Math.min(y * 0.06, 14).toFixed(1) + 'px,0)';
+    tsMid.style.transform = 'translate3d(0,' + Math.min(y * 0.035, 8).toFixed(1) + 'px,0)';
+  }
+  parallax();
+
+  // ---- falling leaves ----
+  (function(){
+    var canvas = document.getElementById('leafCanvas');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // warm gold over the navy bands, forest green over the cream page
+    var GOLD  = [[230,194,127],[202,162,90],[224,178,104]];
+    var GREEN = [[47,112,76],[84,108,52],[124,96,40]];
+
+    // two leaves in a 1x1 box centred on the origin: a plain ovate leaf and a
+    // peepal/ashwattha heart, which suits the document's framing
+    var ovate = new Path2D();
+    ovate.moveTo(0,-0.5);
+    ovate.bezierCurveTo(0.42,-0.22, 0.36,0.30, 0,0.5);
+    ovate.bezierCurveTo(-0.36,0.30, -0.42,-0.22, 0,-0.5);
+    var peepal = new Path2D();
+    peepal.moveTo(0,-0.50);
+    peepal.bezierCurveTo(0.36,-0.44, 0.48,-0.06, 0.26,0.20);
+    peepal.bezierCurveTo(0.14,0.34, 0.05,0.36, 0,0.54);
+    peepal.bezierCurveTo(-0.05,0.36, -0.14,0.34, -0.26,0.20);
+    peepal.bezierCurveTo(-0.48,-0.06, -0.36,-0.44, 0,-0.50);
+    var SHAPES = [ovate, peepal];
+
+    var leaves = [], W = 0, H = 0, raf = 0, last = 0, wind = 0;
+    var bands = [];      // document-Y ranges of the three navy sections
+    var FADE = 60;       // px of cross-fade either side of a band edge
+
+    function measureBands(){
+      var y0 = window.scrollY || window.pageYOffset;
+      bands = [];
+      document.querySelectorAll('.hero,.download-band,.contact-band').forEach(function(el){
+        var r = el.getBoundingClientRect();
+        bands.push([r.top + y0, r.bottom + y0]);
+      });
+    }
+
+    // 1 inside a navy band, 0 out on the cream, smoothly graded across the edge
+    function darkness(docY){
+      var best = 0;
+      for (var i = 0; i < bands.length; i++){
+        var d = Math.min(docY - bands[i][0], bands[i][1] - docY);
+        if (d <= -FADE) continue;
+        var v = d >= FADE ? 1 : (d + FADE) / (2 * FADE);
+        if (v > best) best = v;
+      }
+      return best;
+    }
+
+    function spawn(above){
+      return {
+        x: Math.random() * W,
+        y: above ? -30 - Math.random() * H * 0.5 : Math.random() * H,
+        size: 12 + Math.random() * 10,
+        rot: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 1.1,
+        fall: 18 + Math.random() * 27,
+        swayAmp: 12 + Math.random() * 26,
+        swaySpeed: 0.3 + Math.random() * 0.5,
+        swayPhase: Math.random() * Math.PI * 2,
+        alpha: 0.22 + Math.random() * 0.12,
+        shape: Math.random() < 0.5 ? 0 : 1,
+        tint: (Math.random() * 3) | 0
+      };
+    }
+
+    function resize(){
+      W = window.innerWidth;
+      H = window.innerHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var want = Math.max(9, Math.min(18, Math.round(W / 90)));
+      while (leaves.length < want) leaves.push(spawn(false));
+      leaves.length = want;
+      measureBands();
+    }
+
+    function frame(ts){
+      raf = requestAnimationFrame(frame);
+      // clamped so a backgrounded tab doesn't teleport every leaf on return
+      var dt = last ? Math.min((ts - last) / 1000, 0.05) : 0.016;
+      last = ts;
+      wind += dt * 0.22;
+      var breeze = Math.sin(wind) * 14;
+      var scrollY = window.scrollY || window.pageYOffset;
+
+      ctx.clearRect(0, 0, W, H);
+
+      for (var i = 0; i < leaves.length; i++){
+        var l = leaves[i];
+        l.y += l.fall * dt;
+        l.swayPhase += l.swaySpeed * dt;
+        l.rot += l.spin * dt;
+        l.x += (Math.cos(l.swayPhase) * l.swayAmp * 0.5 + breeze) * dt;
+
+        if (l.y - l.size > H) { leaves[i] = spawn(true); continue; }
+        if (l.x < -40) l.x = W + 40;
+        else if (l.x > W + 40) l.x = -40;
+
+        var k = darkness(l.y + scrollY);
+        var a = GOLD[l.tint], b = GREEN[l.tint];
+        ctx.save();
+        ctx.translate(l.x, l.y);
+        ctx.rotate(l.rot);
+        ctx.scale(l.size, l.size);
+        // a mid green on cream paper carries far less contrast than gold on
+        // navy, so lift the alpha as a leaf crosses onto the light sections
+        ctx.globalAlpha = l.alpha * (1.45 - 0.45 * k);
+        ctx.fillStyle = 'rgb(' +
+          Math.round(b[0] + (a[0] - b[0]) * k) + ',' +
+          Math.round(b[1] + (a[1] - b[1]) * k) + ',' +
+          Math.round(b[2] + (a[2] - b[2]) * k) + ')';
+        ctx.fill(SHAPES[l.shape]);
+        ctx.restore();
+      }
+    }
+
+    function start(){ if (!raf && !reduceMotion.matches) { last = 0; raf = requestAnimationFrame(frame); } }
+    function stop(){ if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+    function applyMotion(){
+      if (reduceMotion.matches) { stop(); ctx.clearRect(0, 0, W, H); }
+      else start();
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', function(){
+      if (document.hidden) stop(); else start();
+    });
+    // the Devanagari webfonts shift section offsets once they land
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureBands);
+    window.addEventListener('load', measureBands);
+
+    if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', applyMotion);
+    else if (reduceMotion.addListener) reduceMotion.addListener(applyMotion);
+    applyMotion();
+  })();
 })();
 </script>
 </body>
