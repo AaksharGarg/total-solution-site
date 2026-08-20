@@ -44,14 +44,29 @@
   --font-en-body:'Inter', sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{
+  scroll-behavior:smooth;
+  /* sticky nav is ~66px tall (~58px once .scrolled shrinks it); without this
+     every in-page anchor lands with its heading hidden underneath the bar. */
+  scroll-padding-top:78px;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  /* The root is the scroll container, so the clip has to live here: the
+     off-canvas menu parked at translateX(110%) was making the whole page
+     scroll sideways on every phone width. `clip` (not `hidden`) keeps the
+     sticky nav working. */
+  overflow-x:clip;
+}
 body{
   margin:0;
   background:var(--paper);
   color:var(--ink);
   font-family:var(--font-en-body);
   -webkit-font-smoothing:antialiased;
+  /* clip, not hidden: `hidden` would make body a scroll container and break
+     the sticky nav. Real overflow sources are fixed at their source below. */
   overflow-x:clip;
+  -webkit-tap-highlight-color:rgba(200,16,46,.15);
 }
 img{max-width:100%;display:block}
 a{color:inherit}
@@ -59,6 +74,7 @@ a{color:inherit}
 .hin-d{font-family:var(--font-hin-display)}
 section{position:relative}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+@media (max-width:560px){.wrap{padding:0 18px}}
 .eyebrow{
   font-family:var(--font-en-body);
   font-weight:700;
@@ -143,7 +159,8 @@ p{margin:0;line-height:1.7}
 }
 .nav-toggle{
   display:none;background:none;border:0;cursor:pointer;padding:8px;
-  width:38px;height:38px;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  width:44px;height:44px;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  -webkit-tap-highlight-color:transparent;
 }
 .nav-toggle span{
   display:block;width:22px;height:2.5px;border-radius:2px;background:#fff;
@@ -154,23 +171,57 @@ p{margin:0;line-height:1.7}
 .nav-toggle.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
 .nav-cta-mobile{display:none}
 
+/* Backdrop behind the open mobile menu — also the outside-click target. */
+.nav-backdrop{
+  position:fixed;inset:0;z-index:45;
+  background:rgba(8,9,28,.5);
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+  touch-action:none;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+.nav-backdrop.show{opacity:1;pointer-events:auto}
+/* Lock the ROOT, not <body>: overflow on body turns it into a scroll
+   container, which knocks the sticky nav (and the panel anchored to it)
+   off-screen the moment the menu is opened part-way down the page. */
+@media (max-width:860px){
+  html.nav-open{overflow-y:hidden}
+}
+
 @media (max-width:860px){
   .nav-links{
-    position:fixed;inset:0 0 auto auto;top:64px;right:0;
+    /* absolute inside the sticky .nav, so the panel tracks the bar when
+       .scrolled shrinks its padding — the old fixed top:64px left a visible
+       gap (and covered the bar) once the nav resized. */
+    position:absolute;top:100%;right:0;
     background:var(--navy-deep);
-    flex-direction:column;align-items:flex-start;
+    flex-direction:column;align-items:stretch;
     width:min(78vw,320px);
-    padding:22px 26px;gap:20px;
+    max-height:calc(100vh - 64px);overflow-y:auto;overscroll-behavior:contain;
+    padding:18px 24px calc(18px + env(safe-area-inset-bottom));gap:4px;
     transform:translateX(110%);
-    transition:transform .35s ease;
+    visibility:hidden;
+    transition:transform .35s ease, visibility 0s linear .35s;
     box-shadow:-16px 0 40px -20px rgba(0,0,0,.5);
     border-radius:0 0 0 14px;
   }
-  .nav-links.open{transform:translateX(0)}
-  .nav-links a{font-size:16px}
+  @supports (height:100dvh){.nav-links{max-height:calc(100dvh - 64px)}}
+  .nav-links.open{transform:translateX(0);visibility:visible;transition:transform .35s ease}
+  /* 44px-tall rows so each link is a real tap target, not a 16px text run */
+  .nav-links a{
+    font-size:16px;display:flex;align-items:center;min-height:44px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .nav-links li:last-child a{border-bottom:0}
+  .nav-links a::after{display:none}
   .nav-toggle{display:flex}
   .nav-cta{display:none}
-  .nav-links .nav-cta-mobile{display:inline-block!important;margin-top:6px}
+  .nav-links .nav-cta-mobile{
+    display:flex!important;margin-top:14px;justify-content:center;text-align:center;
+  }
+}
+@media (max-width:860px) and (max-height:450px){
+  /* landscape phones: the panel would otherwise run off the bottom */
+  .nav-links{gap:0;padding-top:10px}
 }
 
 /* ---------- hero ---------- */
@@ -181,6 +232,10 @@ p{margin:0;line-height:1.7}
     linear-gradient(160deg, var(--navy-deep), var(--navy) 55%, var(--navy-soft));
   color:#fff;
   padding:64px 24px 110px;
+  /* .hero is a <header>, so the `section{position:relative}` rule never
+     applied to it — .hero-orbit/.deco resolved against the viewport instead
+     and escaped this overflow:hidden, widening the page at >=1024px. */
+  position:relative;
   overflow:hidden;
 }
 .hero-grid{
@@ -213,11 +268,13 @@ p{margin:0;line-height:1.7}
   line-height:1.65;
 }
 .hero-mantra{
-  margin-top:26px;display:inline-flex;align-items:center;gap:12px;
+  margin-top:26px;display:inline-flex;align-items:center;justify-content:center;
+  gap:4px 12px;flex-wrap:wrap;max-width:100%;
   font-size:13.5px;color:var(--gold-bright);letter-spacing:.03em;
   border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18);
   padding:10px 0;
 }
+@media (max-width:560px){.hero-mantra{font-size:12.5px;margin-top:20px}}
 .hero-mantra b{font-weight:700;color:#fff}
 .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
 .btn{
@@ -252,6 +309,9 @@ p{margin:0;line-height:1.7}
 @keyframes floaty{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-14px)}}
 
 .hero-orbit{position:absolute;border-radius:50%;border:1px dashed rgba(255,255,255,.14)}
+/* The floating ॐ marks and orbit rings land directly behind the headline
+   once the hero is single-column — decorative only, so drop them. */
+@media (max-width:900px){.hero-orbit,.deco{display:none}}
 
 /* floating tulip / om decorations */
 .deco{position:absolute;opacity:.5;pointer-events:none}
@@ -260,6 +320,30 @@ p{margin:0;line-height:1.7}
   animation:spinfloat 14s linear infinite;
 }
 @keyframes spinfloat{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(8deg)}100%{transform:translateY(0) rotate(0)}}
+
+@media (max-width:900px){
+  /* Was the worst break on phones: two fr columns + a 56px gap never
+     collapsed, so at 360px the copy and the cover were each squeezed into
+     ~150px and pushed the page wider than the viewport. */
+  .hero{padding:40px 20px 70px}
+  .hero-grid{grid-template-columns:1fr;gap:40px;text-align:center;justify-items:center}
+  .hero-copy{max-width:620px}
+  .hero-tag{max-width:none;margin-inline:auto}
+  .hero-cta,.hero-meta{justify-content:center}
+  .hero-book{order:-1}
+  .book-wrap{width:min(230px,62%)}
+}
+@media (max-width:560px){
+  .hero{padding:32px 16px 56px}
+  .book-wrap{width:min(190px,55%)}
+  .hero-h1{font-size:clamp(24px,7.2vw,32px);line-height:1.35}
+  .hero-sub{font-size:clamp(30px,10vw,44px)}
+  .hero-tag{font-size:15px}
+  .hero-meta{gap:10px 18px;font-size:12.5px}
+  /* full-width stacked CTAs — side-by-side they wrapped into two ragged rows */
+  .hero-cta{flex-direction:column;align-items:stretch;width:100%;gap:11px}
+  .hero-cta .btn{width:100%;justify-content:center}
+}
 
 .wave-sep{display:block;width:100%;height:70px;margin-top:-2px}
 
@@ -276,6 +360,13 @@ p{margin:0;line-height:1.7}
 
 /* ---------- about ---------- */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+@media (max-width:860px){
+  /* second grid that never collapsed — same squeeze as the hero */
+  .about-grid{grid-template-columns:1fr;gap:52px}
+  /* the hero already shows this cover full-size a screen earlier; keep the
+     about copy the focus here rather than repeating it at the same scale */
+  .about-photo{max-width:250px;margin:0 auto;order:-1}
+}
 .about-copy p+p{margin-top:16px}
 .about-copy{color:var(--ink-soft);font-size:16px}
 .quote-card{
@@ -302,6 +393,15 @@ p{margin:0;line-height:1.7}
   padding:12px 18px;box-shadow:var(--shadow);
   font-size:13px;color:var(--ink-soft);
   transform:rotate(2deg);
+}
+@media (max-width:860px){
+  /* -18px offsets pushed this past the viewport edge on phones, where
+     overflow-x:clip silently cut the text off. Put it back in flow. */
+  .about-photo .frame-photo{transform:none;border-width:6px}
+  .about-photo .tag{
+    position:static;transform:none;margin:16px auto 0;
+    display:block;text-align:center;max-width:100%;
+  }
 }
 .about-photo .tag b{display:block;color:var(--navy);font-family:var(--font-en-display);font-size:15px}
 
@@ -346,11 +446,20 @@ p{margin:0;line-height:1.7}
 .cell.city{background:linear-gradient(135deg,#3b3f9e,#181b56)}
 .cell.forest{background:linear-gradient(135deg,#0f2e1e,#040f0a)}
 .grid15-cap{text-align:center;margin-top:14px;font-size:12.5px;color:var(--ink-soft)}
+@media (max-width:560px){
+  .grid15{gap:5px;padding:8px}
+  .cell{font-size:10px;padding:4px;letter-spacing:0}
+  .grid15-cap{font-size:12px}
+}
+@media (max-width:900px){
+  /* stacked, the second diagram needs air above it */
+  .model-cols{gap:44px}
+}
 .grid15-cap b{color:var(--navy)}
 
 .bands{max-width:420px;margin:0 auto;border:2px solid var(--navy);border-radius:14px;padding:14px;background:#fff}
 .band{
-  height:34px;border-radius:8px;margin-bottom:6px;
+  min-height:34px;border-radius:8px;margin-bottom:6px;padding:4px 8px;text-align:center;
   display:flex;align-items:center;justify-content:center;
   font-size:10.6px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.02em;
   transform:scaleX(.3);transform-origin:center;opacity:0;
@@ -374,6 +483,15 @@ p{margin:0;line-height:1.7}
   transform:scaleY(.3);transform-origin:center;opacity:0;transition:transform .55s ease .08s,opacity .55s ease .08s;
 }
 .bands.in .band-side{transform:scaleY(1);opacity:1}
+
+@media (max-width:560px){
+  /* placed after the base .band rules on purpose — a media query adds no
+     specificity, so declaring these earlier would simply lose to them */
+  .bands{padding:10px}
+  .band{font-size:9.6px}
+  .band-side{font-size:8.8px;line-height:1.35;padding:5px 3px}
+  .band-pond{font-size:9px}
+}
 
 .model-copy p{color:var(--ink-soft);font-size:16px}
 .model-copy p+p{margin-top:14px}
@@ -434,12 +552,12 @@ p{margin:0;line-height:1.7}
 .dl-book{position:relative;display:flex;justify-content:center}
 .dl-book img{width:min(300px,80%);border-radius:10px;border:7px solid #fff;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);transform:rotate(-4deg)}
 .dl-badge{
-  position:absolute;top:-14px;right:calc(50% - 150px);
+  position:absolute;top:-14px;right:calc(50% - min(150px, 40%));
   background:var(--red);color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em;
   padding:8px 14px;border-radius:999px;box-shadow:0 10px 20px -8px rgba(200,16,46,.7);
   transform:rotate(6deg);
 }
-@media (max-width:900px){.dl-badge{right:calc(50% - 120px)}}
+@media (max-width:560px){.dl-badge{font-size:11px;padding:7px 12px;top:-10px}}
 .dl-info h2{color:#fff;font-size:clamp(24px,3.4vw,34px)}
 .dl-info .hin-d{color:var(--gold-bright);font-size:20px;display:block;margin-bottom:10px}
 .dl-info p{color:rgba(255,255,255,.78);font-size:15.5px;margin-top:14px;max-width:52ch}
@@ -464,8 +582,43 @@ p{margin:0;line-height:1.7}
 .viewer-toolbar a{color:var(--gold-bright);text-decoration:none;font-weight:600}
 .viewer-toolbar a:hover{text-decoration:underline}
 .viewer-frame iframe{width:100%;height:clamp(520px,78vh,760px);border:0;display:block;background:#3d3f5c}
+@supports (height:100dvh){
+  /* vh includes the retractable browser chrome on mobile, so 78vh overshoots */
+  .viewer-frame iframe{height:clamp(520px,78dvh,760px)}
+}
 .viewer-fallback{padding:18px;text-align:center;font-size:13.5px;color:rgba(255,255,255,.75)}
 .viewer-fallback a{color:var(--gold-bright);font-weight:700}
+
+/* iOS Safari and Android Chrome refuse to render a PDF inside an iframe —
+   they left a 520px blank grey slab here. Below 820px, swap the embed for a
+   real cover + open/download panel that actually works on a phone. */
+.viewer-mobile{display:none}
+.only-mobile{display:none}
+@media (max-width:820px){
+  /* the desktop line promises an inline preview the phone can't deliver */
+  .only-desktop{display:none}
+  .only-mobile{display:inline}
+}
+@media (max-width:820px){
+  .viewer-frame iframe,.viewer-fallback{display:none}
+  .viewer-mobile{
+    display:block;padding:26px 20px calc(26px + env(safe-area-inset-bottom));
+    text-align:center;background:linear-gradient(160deg,var(--navy-deep),var(--navy));
+  }
+  .viewer-mobile img{
+    width:min(190px,58%);margin:0 auto 18px;border-radius:8px;
+    border:5px solid #fff;box-shadow:0 20px 40px -16px rgba(0,0,0,.6);
+  }
+  .viewer-mobile h3{color:#fff;font-size:19px;line-height:1.35}
+  .viewer-mobile p{color:rgba(255,255,255,.72);font-size:14px;margin-top:10px}
+  .viewer-mobile .vm-cta{display:flex;flex-direction:column;gap:11px;margin-top:22px}
+  .viewer-mobile .vm-cta .btn{width:100%;justify-content:center}
+}
+@media (max-width:820px){
+  .viewer-frame{border-width:6px}
+  .viewer-toolbar{justify-content:center;text-align:center;font-size:12.5px;padding:11px 14px}
+  .viewer-toolbar .vt-links{display:none}
+}
 
 /* ---------- contact ---------- */
 .contact-band{
@@ -518,6 +671,80 @@ footer a:hover{text-decoration:underline}
   transition:opacity .3s ease, transform .3s ease;
 }
 .back-to-top.show{opacity:1;pointer-events:auto;transform:none}
+
+/* ============================================================
+   MOBILE PASS — small-screen refinements
+   ============================================================ */
+@media (max-width:640px){
+  .section-head{margin-bottom:34px}
+  .section-head p{font-size:15px}
+  .eyebrow{font-size:11.5px;letter-spacing:.13em}
+
+  /* cards: trim desktop padding that ate most of a 360px screen */
+  .part-card{padding:22px 18px}
+  .quote-tile{padding:26px 20px}
+  .quote-tile .hin-d{font-size:16px;line-height:1.8}
+  .num-card{padding:24px 14px}
+  .num-card .num-label{font-size:12.5px}
+  .contact-card{padding:22px 16px}
+  .contact-card .addr{font-size:13.5px}
+  .quote-card{padding:22px 18px}
+  .quote-card .hin-d{font-size:16.5px;line-height:1.85}
+  .pill-quote{font-size:15px;padding:11px 18px;display:block;text-align:center}
+
+  .about-copy,.model-copy p{font-size:15.2px}
+
+  /* FAQ: as a flex row the Hindi question and its English gloss became two
+     cramped columns. Block layout lets the gloss flow inline and wrap. */
+  .faq-item summary{
+    display:block;position:relative;
+    padding:15px 46px 15px 16px;font-size:15px;min-height:44px;
+  }
+  .faq-item summary::after{position:absolute;right:16px;top:13px;line-height:1}
+
+  .faq-item .faq-a{padding:0 16px 18px;font-size:14px}
+
+  .dl-info p{font-size:15px}
+  .dl-facts{gap:18px}
+  .dl-cta{flex-direction:column;align-items:stretch}
+  .dl-cta .btn{width:100%;justify-content:center}
+  .dl-book img{width:min(230px,68%)}
+  /* keep the sticker on the cover's corner — it must track the same
+     half-width the image actually uses at this breakpoint */
+  .dl-badge{right:calc(50% - min(115px, 34%))}
+
+  .model-facts{justify-content:center}
+  .model-facts .fact{font-size:12.4px;padding:9px 13px}
+
+  .orgs{font-size:12.2px;line-height:1.9}
+  footer{padding:26px 18px;font-size:12px}
+  .tulip-row svg{width:22px;height:29px}
+
+  /* keep the FAB clear of the iOS home indicator */
+  .back-to-top{
+    right:16px;bottom:calc(16px + env(safe-area-inset-bottom));
+    width:44px;height:44px;
+  }
+}
+
+@media (max-width:400px){
+  /* one column below ~400px — two cards left ~105px of usable width */
+  .numbers-grid{grid-template-columns:1fr}
+  .brand{font-size:15.5px;gap:8px}
+  .brand .om{width:30px;height:30px;font-size:16px}
+  .nav{padding:11px 16px}
+  .nav.scrolled{padding:9px 16px}
+}
+
+/* Long unbroken strings (emails, URLs) must not widen the page */
+.contact-card .addr,.viewer-toolbar,footer{overflow-wrap:anywhere}
+
+/* Coarse pointers get no hover-lift — it sticks on tap and reads as broken */
+@media (hover:none){
+  .btn:hover,.part-card:hover,.contact-card:hover{transform:none}
+  .part-card:hover{box-shadow:none;border-color:var(--line)}
+  .nav-links a:hover::after{width:0}
+}
 </style>
 </head>
 <body>
@@ -671,13 +898,13 @@ footer a:hover{text-decoration:underline}
         <div class="bands" id="bands">
           <div class="band b-ind">Industry, Dairy &amp; Services</div>
           <div class="band b-farm">Vegetables &amp; Fruits Farming</div>
-          <div class="band b-res" style="height:52px">Residence</div>
+          <div class="band b-res" style="min-height:52px">Residence</div>
           <div class="band-mid-row">
             <div class="band-side">Govt Office · Shop · School · Hospital · Sports</div>
             <div class="band-pond">Water Pond</div>
             <div class="band-side">Govt Office · Shop · School · Hospital · Sports</div>
           </div>
-          <div class="band b-res" style="height:52px">Residence</div>
+          <div class="band b-res" style="min-height:52px">Residence</div>
           <div class="band b-farm">Vegetables &amp; Fruits Farming</div>
           <div class="band b-ind">Industry, Dairy &amp; Services</div>
         </div>
@@ -801,7 +1028,7 @@ footer a:hover{text-decoration:underline}
     <div class="section-head" data-reveal>
       <span class="eyebrow">ऑनलाइन पढ़ें · Live Viewer</span>
       <h2>Read Total Solution Online</h2>
-      <p>No download needed — the whole document, right here in your browser.</p>
+      <p><span class="only-desktop">No download needed — the whole document, right here in your browser.</span><span class="only-mobile">All 16 pages of the document — open it in your reader or keep a copy.</span></p>
     </div>
     <div class="viewer-frame" data-reveal>
       <div class="viewer-toolbar">
@@ -813,6 +1040,15 @@ footer a:hover{text-decoration:underline}
       </div>
       <iframe src="/total-solution.pdf#view=FitH" title="Total Solution PDF viewer" loading="lazy"></iframe>
       <p class="viewer-fallback">Viewer not loading? Some mobile browsers can't preview PDFs inline — <a href="/total-solution.pdf" target="_blank" rel="noopener">open it in a new tab</a> instead.</p>
+      <div class="viewer-mobile">
+        <img src="/cover.jpg" alt="Cover of Total Solution — मेरे सपनों का भारत" loading="lazy">
+        <h3>Open the document</h3>
+        <p>Phone browsers can't preview a PDF on the page itself — tap below to open all 16 pages in your reader, or keep a copy.</p>
+        <div class="vm-cta">
+          <a href="/total-solution.pdf" class="btn btn-gold" target="_blank" rel="noopener">📖 Open the PDF</a>
+          <a href="/total-solution.pdf" class="btn btn-ghost" download>⬇ Download (5.3 MB)</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -882,17 +1118,38 @@ footer a:hover{text-decoration:underline}
   // mobile nav toggle
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
-  toggle.addEventListener('click', function(){
-    var open = links.classList.toggle('open');
+
+  // backdrop doubles as the outside-click target
+  var backdrop = document.createElement('div');
+  backdrop.className = 'nav-backdrop';
+  document.body.appendChild(backdrop);
+
+  function setMenu(open){
+    links.classList.toggle('open', open);
     toggle.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    // lock the page behind the panel so the menu doesn't scroll the site
+    document.documentElement.classList.toggle('nav-open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  toggle.addEventListener('click', function(){
+    setMenu(!links.classList.contains('open'));
   });
-  document.querySelectorAll('[data-navlink]').forEach(function(a){
-    a.addEventListener('click', function(){
-      links.classList.remove('open');
-      toggle.classList.remove('open');
-      toggle.setAttribute('aria-expanded','false');
-    });
+  backdrop.addEventListener('click', function(){ setMenu(false); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && links.classList.contains('open')) {
+      setMenu(false);
+      toggle.focus();
+    }
+  });
+  document.querySelectorAll('[data-navlink], .nav-cta-mobile').forEach(function(a){
+    a.addEventListener('click', function(){ setMenu(false); });
+  });
+  // rotating to landscape can cross the 860px breakpoint with the panel open,
+  // which would otherwise leave the body scroll-locked on the desktop layout
+  window.addEventListener('resize', function(){
+    if (window.innerWidth > 860 && links.classList.contains('open')) setMenu(false);
   });
 
   // reveal on scroll
