@@ -267,6 +267,18 @@ p{margin:0;line-height:1.7}
   max-width:52ch;
   line-height:1.65;
 }
+.hero-tag-hin{
+  font-family:var(--font-hin-body);
+  font-size:clamp(16.5px,2.35vw,21px);
+  line-height:1.85;color:#fff;max-width:34ch;
+}
+.hero-tag-en{
+  margin-top:12px;max-width:52ch;
+  font-size:clamp(13px,1.6vw,14.5px);line-height:1.7;
+  color:rgba(255,255,255,.58);
+}
+.hero-tag-en i{color:rgba(255,255,255,.72)}
+@media (max-width:900px){.hero-tag-hin,.hero-tag-en{margin-inline:auto}}
 .hero-mantra{
   margin-top:26px;display:inline-flex;align-items:center;justify-content:center;
   gap:4px 12px;flex-wrap:wrap;max-width:100%;
@@ -463,24 +475,158 @@ p{margin:0;line-height:1.7}
 .about-photo .tag b{display:block;color:var(--navy);font-family:var(--font-en-display);font-size:15px}
 
 /* ---------- five parts ---------- */
-.parts-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
-@media (max-width:1040px){.parts-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.parts-grid{grid-template-columns:1fr}}
+.parts-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+@media (max-width:1040px){.parts-grid{grid-template-columns:repeat(2,1fr);gap:20px}}
+@media (max-width:560px){.parts-grid{grid-template-columns:1fr;gap:16px}}
 .part-card{
-  background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px;
+  background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  display:flex;flex-direction:column;position:relative;z-index:3;
   transition:transform .35s cubic-bezier(.2,.8,.3,1), box-shadow .35s ease, border-color .35s ease;
 }
 .part-card:hover{transform:translateY(-8px);box-shadow:var(--shadow);border-color:var(--gold)}
-.part-num{
-  width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,var(--navy),var(--navy-soft));color:var(--gold-bright);
-  display:grid;place-items:center;font-family:var(--font-en-display);font-weight:800;font-size:15px;
-  margin-bottom:16px;
+
+/* the animated vignette at the head of each card */
+.part-vis{position:relative;line-height:0;background:#12143c}
+.pv-svg{display:block;width:100%;height:auto}
+.pv-t{font-family:var(--font-en-body);font-weight:800}
+.part-vis::after{
+  content:"";position:absolute;inset:auto 0 0 0;height:22px;
+  background:linear-gradient(to bottom,rgba(255,255,255,0),#fff);
 }
-.part-icon{font-size:26px;margin-bottom:10px}
+.part-num{
+  position:absolute;top:10px;left:10px;z-index:2;
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--navy),var(--navy-soft));color:var(--gold-bright);
+  display:grid;place-items:center;font-family:var(--font-en-display);font-weight:800;font-size:14px;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.55);
+}
+.part-body{padding:14px 20px 20px;flex:1;display:flex;flex-direction:column}
 .part-card h3{font-size:16px;color:var(--navy);font-family:var(--font-en-body);font-weight:700}
-.part-card .hin-d{display:block;color:var(--red);font-size:16px;margin-bottom:4px}
-.part-card p{margin-top:10px;font-size:13.6px;color:var(--ink-soft);line-height:1.65}
+.part-card .hin-d{display:block;color:var(--red);font-size:16px;margin-bottom:2px}
+.part-card p{margin-top:9px;font-size:13.6px;color:var(--ink-soft);line-height:1.65}
+.part-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:13px}
+.part-chips span{
+  background:var(--paper-2);border:1px solid var(--line);border-radius:999px;
+  padding:5px 10px;font-size:11.4px;font-weight:700;color:var(--navy);line-height:1;
+}
+
+/* ambient motion, only once the card has scrolled in */
+.part-card.in .pv-rays{animation:pvSpin 34s linear infinite;transform-origin:248px 26px}
+.part-card.in .sunhalo{animation:pvHalo 3.6s ease-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+.part-card.in .heat{animation:pvHeat 4.2s ease-in-out var(--d) infinite}
+.part-card.in .drip{animation:pvDrip 3.4s ease-in var(--d) infinite}
+.part-card.in .pwave{animation:pvWave 6s linear var(--d) infinite}
+.part-card.in .merc{animation:pvMerc 5s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+.part-card.in .uparrow{animation:pvFloat 3s ease-in-out infinite}
+.part-card.in .lane{animation:pvLane 1.1s linear var(--d) infinite}
+.part-card.in .drive{animation:pvDrive 4.4s linear var(--d) infinite}
+.part-card.in .fume{animation:pvFume 4.4s ease-out var(--d) infinite;transform-box:fill-box}
+.part-card.in .puff{animation:pvPuff 5.2s ease-out var(--d) infinite;transform-box:fill-box;transform-origin:50% 100%}
+.part-card.in .crate{animation:pvCrate 5.5s linear var(--d) infinite}
+.part-card.in .roller{animation:pvSpin 3s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+.part-card.in .arm{animation:pvArm 4s ease-in-out infinite;transform-box:view-box;transform-origin:250px 30px}
+.part-card.in .gear{animation:pvSpin 9s linear infinite}
+.part-card.in .village{animation:pvFade 7s ease-in-out infinite}
+.part-card.in .tower{animation:pvGrow .7s cubic-bezier(.2,.85,.3,1.2) var(--d) both;transform-box:fill-box;transform-origin:50% 100%}
+.part-card.in .mover{animation:pvBlink 5.5s linear var(--d) infinite}
+.part-card.in .mcell{animation:pvPopIn .6s cubic-bezier(.2,.85,.3,1.25) var(--d) both;transform-box:fill-box;transform-origin:50% 50%}
+.part-card.in .mreach{animation:pvReach 4.6s ease-out var(--d) infinite;transform-box:fill-box;transform-origin:50% 50%}
+.part-card.in .leaf5{animation:pvLeaf 9s linear var(--d) infinite;transform-box:fill-box}
+.mtag{font-size:8.5px;fill:#cfd4ff;fill-opacity:.75;letter-spacing:.14em;text-transform:uppercase}
+
+@keyframes pvSpin{to{transform:rotate(360deg)}}
+@keyframes pvHalo{0%{transform:scale(1);opacity:.65}70%{transform:scale(1.9);opacity:0}100%{transform:scale(1.9);opacity:0}}
+@keyframes pvHeat{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-5px);opacity:.55}}
+@keyframes pvDrip{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(16px);opacity:0}}
+@keyframes pvWave{to{transform:translateX(40px)}}
+@keyframes pvMerc{0%,100%{transform:scaleY(.55)}55%{transform:scaleY(1)}}
+@keyframes pvFloat{0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}}
+@keyframes pvLane{to{stroke-dashoffset:-26}}
+@keyframes pvDrive{0%{transform:translateX(-70px)}100%{transform:translateX(340px)}}
+@keyframes pvFume{0%{opacity:.5;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-16px,-6px) scale(2.2)}}
+@keyframes pvPuff{0%{opacity:0;transform:translateY(0) scale(.4)}25%{opacity:.45}100%{opacity:0;transform:translateY(-22px) scale(2)}}
+@keyframes pvCrate{0%{transform:translateX(0)}100%{transform:translateX(190px)}}
+@keyframes pvArm{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(14deg)}}
+@keyframes pvFade{0%,100%{opacity:1}55%{opacity:.35}}
+@keyframes pvGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes pvBlink{0%,92%{opacity:.95}100%{opacity:0}}
+@keyframes pvPopIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes pvReach{0%{opacity:0;transform:scale(.4)}18%{opacity:.85}75%{opacity:0;transform:scale(3.2)}100%{opacity:0;transform:scale(3.2)}}
+@keyframes pvLeaf{0%{opacity:0;transform:translate(0,0) rotate(0)}12%{opacity:.35}100%{opacity:0;transform:translate(-34px,64px) rotate(220deg)}}
+
+/* ---------- भगवान · the five elements (page 3) ---------- */
+.panch{
+  margin-top:34px;position:relative;z-index:3;
+  background:linear-gradient(150deg,var(--navy) 0%,var(--navy-deep) 60%,#0a0c26 100%);
+  border:1px solid rgba(202,162,90,.45);border-radius:22px;padding:32px 24px 28px;
+  box-shadow:0 24px 60px -30px rgba(13,15,48,.8);overflow:hidden;
+}
+.panch::before{
+  content:"";position:absolute;inset:-40% -10% auto auto;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle,rgba(202,162,90,.18),transparent 68%);pointer-events:none;
+}
+.panch-head{text-align:center;position:relative}
+.panch-eyebrow{
+  display:inline-block;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold-bright);border:1px solid rgba(202,162,90,.5);border-radius:999px;padding:6px 13px;
+}
+.panch-q{
+  margin-top:14px;font-family:var(--font-hin-display);color:#fff;
+  font-size:clamp(19px,4.4vw,26px);line-height:1.5;
+}
+.panch-q b{color:var(--gold-bright);font-weight:inherit}
+.panch-sub{margin-top:8px;color:rgba(255,255,255,.66);font-size:13.6px;line-height:1.6;max-width:620px;margin-inline:auto}
+.panch-word{
+  display:flex;justify-content:center;align-items:baseline;gap:5px;margin:22px 0 4px;flex-wrap:wrap;
+}
+.panch-word i{
+  font-style:normal;color:rgba(255,255,255,.4);font-size:clamp(14px,3.4vw,19px);font-weight:600;
+}
+.panch-word i.eq{color:var(--gold);padding:0 3px}
+.panch-word .whole{font-size:clamp(28px,7.6vw,44px)}
+.panch-word span{
+  font-family:var(--font-hin-display);font-size:clamp(26px,7vw,40px);color:#fff;line-height:1;
+  opacity:.28;transition:opacity .4s ease,color .4s ease,text-shadow .4s ease;
+}
+.panch.in .panch-word span{animation:panchLight .8s ease var(--d) forwards}
+.panch-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:20px;
+}
+@media (max-width:430px){.panch-grid{grid-template-columns:repeat(5,1fr);gap:6px}}
+.panch-tile{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;
+  padding:14px 6px 12px;text-align:center;opacity:0;transform:translateY(14px);
+}
+.panch.in .panch-tile{animation:panchRise .6s cubic-bezier(.2,.8,.3,1.15) var(--d) both}
+.panch-tile .akshar{
+  display:block;font-family:var(--font-hin-display);font-size:clamp(24px,6.6vw,34px);
+  color:var(--gold-bright);line-height:1;
+}
+.panch-tile .tattva{
+  display:block;margin-top:7px;font-family:var(--font-hin-body);font-size:clamp(12px,3.2vw,15px);
+  color:#fff;font-weight:600;line-height:1.25;
+}
+.panch-tile .gloss{
+  display:block;margin-top:4px;font-size:clamp(9.5px,2.5vw,11px);letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);font-weight:700;
+}
+.panch-tile .ic5{display:block;width:20px;height:20px;margin:9px auto 0;opacity:.55}
+.panch-foot{
+  margin-top:20px;text-align:center;font-family:var(--font-hin-body);color:#fff;
+  font-size:clamp(13.5px,3.4vw,16px);line-height:1.75;
+}
+.panch-foot .en{display:block;margin-top:8px;font-family:var(--font-en-body);font-size:13px;color:rgba(255,255,255,.6);font-style:italic}
+.panch-src{margin-top:14px;text-align:center;font-size:11.5px;color:rgba(255,255,255,.42);letter-spacing:.04em}
+@keyframes panchRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes panchLight{to{opacity:1;color:var(--gold-bright);text-shadow:0 0 24px rgba(230,194,127,.55)}}
+
+@media (prefers-reduced-motion:reduce){
+  .pv-rays,.sunhalo,.heat,.drip,.pwave,.merc,.uparrow,.lane,.drive,.fume,.puff,.crate,
+  .roller,.arm,.gear,.village,.tower,.mover,.mcell,.mreach,.leaf5{animation:none!important;opacity:1!important;transform:none!important}
+  .part-card .mover{display:none}
+  .panch-tile,.panch-word span{opacity:1!important;transform:none!important;animation:none!important}
+  .panch-word span{color:var(--gold-bright)}
+}
 
 /* ---------- model city : diagrams ---------- */
 .model-band{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -932,7 +1078,7 @@ footer a:hover{text-decoration:underline}
       <span class="eyebrow">एक दृष्टिकोण · A Vision Document</span>
       <h1 class="hero-h1">मेरे सपनों का भारत <br><span class="accent">स्वर्ग से सुंदर भारत</span></h1>
       <div class="hero-sub">TOTAL&nbsp;SOLUTION</div>
-      <p class="hero-tag">A free vision document proposing one self-reliant city model for a happy, healthy, prosperous, pollution-free India — <b>and</b> a cooler planet.</p>
+      <p class="hero-tag hero-tag-hin" lang="hi">140 करोड़ हिन्दुस्तानियों को सुखी, सम्पन्न, निरोगी बनाना तथा साथ में प्रदूषण रहित वातावरण, जल, मिट्टी, और ध्वनि बनाने का तरीका।</p><p class="hero-tag-en">The cover’s own words — <i>a way to make 140 crore Indians happy, prosperous and free of illness, and with it an environment, water, soil and air free of pollution.</i></p>
       <div class="hero-mantra">वसुधैव कुटुंबकम · <b>One Earth · One Family · One Future</b></div>
       <div class="hero-cta">
         <a href="/total-solution.pdf" class="btn btn-primary" download>⬇ Download the PDF</a>
@@ -1062,42 +1208,82 @@ footer a:hover{text-decoration:underline}
       <h2>Five Parts, One Total Solution</h2>
       <p>The document walks through what's breaking today, one part at a time — then spends its longest chapter on the fix.</p>
     </div>
+    <svg class="pv-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+ <linearGradient id="pSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c98a"/><stop offset=".55" stop-color="#e79a6b"/><stop offset="1" stop-color="#c96f56"/></linearGradient>
+ <linearGradient id="pSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d8ec4"/><stop offset="1" stop-color="#14405f"/></linearGradient>
+ <linearGradient id="pDusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2f80"/><stop offset="1" stop-color="#12143c"/></linearGradient>
+ <linearGradient id="pSoot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7e6a44"/><stop offset="1" stop-color="#3a2f1b"/></linearGradient>
+ <linearGradient id="pDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfeadb"/><stop offset="1" stop-color="#8ec9a8"/></linearGradient>
+ <linearGradient id="pRoad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4f6b"/><stop offset="1" stop-color="#23253c"/></linearGradient>
+</defs></svg>
+
     <div class="parts-grid">
-      <div class="part-card" data-reveal>
-        <div class="part-num">01</div>
-        <div class="part-icon">🌍</div>
-        <span class="hin-d">जलवायु परिवर्तन</span>
-        <h3>Climate Change</h3>
-        <p>Why treating nature as disposable — melting poles, rising seas, fiercer storms — is a bill our own grandchildren will be handed.</p>
+      <article class="part-card" data-reveal>
+        <div class="part-vis"><div class="part-num">01</div><svg class="pv-svg" viewBox="0 0 300 104" role="img" aria-label="A warming sky over a melting ice cap and a rising sea, with a thermometer climbing" preserveAspectRatio="xMidYMid meet"><rect width="300.0" height="104.0" fill="url(#pSky)"/><g class="pv-sun"><circle cx="248" cy="26" r="14" fill="#fff3c4" fill-opacity=".95"/><circle class="sunhalo" cx="248" cy="26" r="14" fill="none" stroke="#fff3c4" stroke-opacity=".6" stroke-width="2"/></g><g class="pv-rays" stroke="#fff3c4" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M248 26l22.0 0.0"/><path d="M248 26l19.1 11.0"/><path d="M248 26l11.0 19.1"/><path d="M248 26l0.0 22.0"/><path d="M248 26l-11.0 19.1"/><path d="M248 26l-19.1 11.0"/><path d="M248 26l-22.0 0.0"/><path d="M248 26l-19.1 -11.0"/><path d="M248 26l-11.0 -19.1"/><path d="M248 26l-0.0 -22.0"/><path d="M248 26l11.0 -19.1"/><path d="M248 26l19.1 -11.0"/></g><path class="heat" d="M18 24 q9 -4 18 0 t18 0" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round" style="--d:0.00s"/><path class="heat" d="M26 33 q9 -4 18 0 t18 0" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round" style="--d:0.45s"/><path class="heat" d="M34 42 q9 -4 18 0 t18 0" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round" style="--d:0.90s"/><path class="heat" d="M42 51 q9 -4 18 0 t18 0" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round" style="--d:1.35s"/><path d="M0 78 L14 56 L28 66 L44 48 L62 68 L78 60 L92 78Z" fill="#f2f8ff" fill-opacity=".95"/><path d="M0 78 L14 56 L28 66 L44 48 L62 68 L78 60 L92 78Z" fill="none" stroke="#bcd7ea" stroke-width="1"/><circle class="drip" cx="30" cy="68" r="1.8" fill="#cfe8fb" style="--d:0.00s"/><circle class="drip" cx="56" cy="72" r="1.8" fill="#cfe8fb" style="--d:0.90s"/><circle class="drip" cx="74" cy="68" r="1.8" fill="#cfe8fb" style="--d:1.80s"/><rect x="0" y="78" width="300.0" height="26.0" fill="url(#pSea)"/><path class="pwave" d="M-30 83 q10 -3 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#dff0ff" stroke-opacity=".3" stroke-width="1" style="--d:0.00s"/><path class="pwave" d="M-30 90 q10 -3 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#dff0ff" stroke-opacity=".3" stroke-width="1" style="--d:0.60s"/><path class="pwave" d="M-30 97 q10 -3 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#dff0ff" stroke-opacity=".3" stroke-width="1" style="--d:1.20s"/><g class="thermo"><rect x="272" y="46" width="9" height="42" rx="4.5" fill="#fffdf7" fill-opacity=".9" stroke="#a3402f" stroke-width="1"/><rect class="merc" x="274.5" y="52" width="4" height="34" rx="2" fill="#c8102e"/><circle cx="276.5" cy="88" r="6.5" fill="#c8102e"/></g><path class="uparrow" d="M232 78 v-16 m0 0 l-4.5 5.5 m4.5 -5.5 l4.5 5.5" fill="none" stroke="#7c1f14" stroke-opacity=".85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="part-body">
+          <span class="hin-d">जलवायु परिवर्तन</span>
+          <h3>Climate Change</h3>
+          <p>Why treating nature as disposable — melting poles, rising seas, fiercer storms — is a bill our own grandchildren will be handed.</p>
+          <div class="part-chips"><span>3–5 °C by 2100</span><span>+1 m sea level</span></div>
+        </div>
+      </article>
+      <article class="part-card" data-reveal>
+        <div class="part-vis"><div class="part-num">02</div><svg class="pv-svg" viewBox="0 0 300 104" role="img" aria-label="Cars streaming down a night highway away from a city skyline" preserveAspectRatio="xMidYMid meet"><rect width="300.0" height="104.0" fill="url(#pDusk)"/><g fill="#0c0e30" fill-opacity=".8"><rect x="2.7" y="25.7" width="13" height="20.3" rx="1.5"/><rect x="25.5" y="27.8" width="13" height="18.2" rx="1.5"/><rect x="43.0" y="25.1" width="13" height="20.9" rx="1.5"/><rect x="61.1" y="26.7" width="13" height="19.3" rx="1.5"/><rect x="83.8" y="20.6" width="13" height="25.4" rx="1.5"/><rect x="100.6" y="31.3" width="13" height="14.7" rx="1.5"/><rect x="120.5" y="20.2" width="13" height="25.8" rx="1.5"/><rect x="144.2" y="37.1" width="13" height="8.9" rx="1.5"/><rect x="165.9" y="16.8" width="13" height="29.2" rx="1.5"/><rect x="183.9" y="24.5" width="13" height="21.5" rx="1.5"/><rect x="200.9" y="37.7" width="13" height="8.3" rx="1.5"/><rect x="223.2" y="36.7" width="13" height="9.3" rx="1.5"/><rect x="241.1" y="32.7" width="13" height="13.3" rx="1.5"/><rect x="260.2" y="27.8" width="13" height="18.2" rx="1.5"/><rect x="282.6" y="19.5" width="13" height="26.5" rx="1.5"/><rect x="303.1" y="23.9" width="13" height="22.1" rx="1.5"/></g><rect x="0" y="46" width="300.0" height="58.0" fill="url(#pRoad)"/><path d="M0 46.5H300" stroke="#8a8fb8" stroke-opacity=".35" stroke-width="1"/><path class="lane" d="M-40 62H340" stroke="#ffe6a8" stroke-opacity=".7" stroke-width="2" stroke-dasharray="14 12" stroke-linecap="round" style="--d:0.00s"/><path class="lane" d="M-40 80H340" stroke="#ffe6a8" stroke-opacity=".7" stroke-width="2" stroke-dasharray="14 12" stroke-linecap="round" style="--d:0.50s"/><g class="drive" style="--d:0.00s"><g transform="translate(60 56) scale(0.78)"><rect x="-16" y="-6" width="32" height="9" rx="3" fill="#c8102e"/><path d="M-10 -6 l4 -6h11l5 6z" fill="#c8102e" fill-opacity=".85"/><circle cx="-9" cy="3.6" r="2.8" fill="#0b0d24"/><circle cx="9" cy="3.6" r="2.8" fill="#0b0d24"/><rect x="14" y="-4" width="3" height="2.4" rx="1" fill="#fff3c4"/><g class="fume"><circle cx="-20" cy="-1" r="3" fill="#9aa0c9" fill-opacity=".45"/></g></g></g><g class="drive" style="--d:1.60s"><g transform="translate(200 71) scale(1.0)"><rect x="-16" y="-6" width="32" height="9" rx="3" fill="#caa25a"/><path d="M-10 -6 l4 -6h11l5 6z" fill="#caa25a" fill-opacity=".85"/><circle cx="-9" cy="3.6" r="2.8" fill="#0b0d24"/><circle cx="9" cy="3.6" r="2.8" fill="#0b0d24"/><rect x="14" y="-4" width="3" height="2.4" rx="1" fill="#fff3c4"/><g class="fume"><circle cx="-20" cy="-1" r="3" fill="#9aa0c9" fill-opacity=".45"/></g></g></g><g class="drive" style="--d:3.10s"><g transform="translate(120 90) scale(1.15)"><rect x="-16" y="-6" width="32" height="9" rx="3" fill="#8f94c9"/><path d="M-10 -6 l4 -6h11l5 6z" fill="#8f94c9" fill-opacity=".85"/><circle cx="-9" cy="3.6" r="2.8" fill="#0b0d24"/><circle cx="9" cy="3.6" r="2.8" fill="#0b0d24"/><rect x="14" y="-4" width="3" height="2.4" rx="1" fill="#fff3c4"/><g class="fume"><circle cx="-20" cy="-1" r="3" fill="#9aa0c9" fill-opacity=".45"/></g></g></g></svg></div>
+        <div class="part-body">
+          <span class="hin-d">वाहन</span>
+          <h3>Automobiles</h3>
+          <p>Roads that carry more grief than distance — over a lakh lives lost a year — and a village life traded for a commute.</p>
+          <div class="part-chips"><span>1 lakh+ lives a year</span><span>Fuel · noise · smoke</span></div>
+        </div>
+      </article>
+      <article class="part-card" data-reveal>
+        <div class="part-vis"><div class="part-num">03</div><svg class="pv-svg" viewBox="0 0 300 104" role="img" aria-label="A smoking factory feeding a conveyor belt worked by a robot arm" preserveAspectRatio="xMidYMid meet"><rect width="300.0" height="104.0" fill="url(#pSoot)"/><g fill="#2a2211" fill-opacity=".85"><path d="M0 104V60l26 14V60l26 14V44h11l3-18h11l3 18h3v60Z"/></g><circle class="puff" cx="66" cy="26" r="4" fill="#e8e2d2" fill-opacity=".3" style="--d:0.00s"/><circle class="puff" cx="66" cy="26" r="5" fill="#e8e2d2" fill-opacity=".3" style="--d:1.10s"/><circle class="puff" cx="66" cy="26" r="6" fill="#e8e2d2" fill-opacity=".3" style="--d:2.20s"/><circle class="puff" cx="80" cy="26" r="4" fill="#e8e2d2" fill-opacity=".3" style="--d:0.70s"/><circle class="puff" cx="80" cy="26" r="5" fill="#e8e2d2" fill-opacity=".3" style="--d:1.80s"/><circle class="puff" cx="80" cy="26" r="6" fill="#e8e2d2" fill-opacity=".3" style="--d:2.90s"/><circle class="puff" cx="94" cy="26" r="4" fill="#e8e2d2" fill-opacity=".3" style="--d:1.40s"/><circle class="puff" cx="94" cy="26" r="5" fill="#e8e2d2" fill-opacity=".3" style="--d:2.50s"/><circle class="puff" cx="94" cy="26" r="6" fill="#e8e2d2" fill-opacity=".3" style="--d:3.60s"/><rect x="96" y="74" width="204" height="6" rx="3" fill="#1f1a0c" fill-opacity=".8"/><circle class="roller" cx="106" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><circle class="roller" cx="142" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><circle class="roller" cx="178" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><circle class="roller" cx="214" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><circle class="roller" cx="250" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><circle class="roller" cx="286" cy="83" r="5" fill="none" stroke="#c2a052" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/><rect class="crate" x="102" y="60" width="16" height="14" rx="2" fill="#caa25a" stroke="#6b5320" stroke-width="1" style="--d:0.00s"/><rect class="crate" x="102" y="60" width="16" height="14" rx="2" fill="#caa25a" stroke="#6b5320" stroke-width="1" style="--d:1.10s"/><rect class="crate" x="102" y="60" width="16" height="14" rx="2" fill="#caa25a" stroke="#6b5320" stroke-width="1" style="--d:2.20s"/><rect class="crate" x="102" y="60" width="16" height="14" rx="2" fill="#caa25a" stroke="#6b5320" stroke-width="1" style="--d:3.30s"/><rect class="crate" x="102" y="60" width="16" height="14" rx="2" fill="#caa25a" stroke="#6b5320" stroke-width="1" style="--d:4.40s"/><g class="arm"><path d="M250 30 l-22 22" stroke="#e2d6b4" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="250" cy="30" r="5" fill="#e2d6b4"/><rect x="221" y="49" width="10" height="7" rx="2" fill="#c8102e"/></g><g class="gear" style="transform-origin:275px 34px"><circle cx="275" cy="34" r="10" fill="none" stroke="#e2d6b4" stroke-opacity=".75" stroke-width="3" stroke-dasharray="4.5 3.4"/><circle cx="275" cy="34" r="3" fill="#e2d6b4" fill-opacity=".75"/></g></svg></div>
+        <div class="part-body">
+          <span class="hin-d">औद्योगीकरण</span>
+          <h3>Industrialisation</h3>
+          <p>When production turns into marketing turns into distance from home — and automation quietly empties the shop floor.</p>
+          <div class="part-chips"><span>Making → marketing</span><span>Automation</span></div>
+        </div>
+      </article>
+      <article class="part-card" data-reveal>
+        <div class="part-vis"><div class="part-num">04</div><svg class="pv-svg" viewBox="0 0 300 104" role="img" aria-label="People leaving an emptying village for a crowded city skyline" preserveAspectRatio="xMidYMid meet"><rect width="300.0" height="104.0" fill="url(#pDusk)"/><rect x="0" y="72" width="300.0" height="32.0" fill="#1b2a1f"/><g class="village"><g transform="translate(24 72) scale(1.0)"><path d="M-11 0 L0 -11 L11 0Z" fill="#8a6d2e"/><rect x="-8" y="0" width="16" height="11" fill="#6a5322"/><rect x="-2" y="4" width="4" height="7" fill="#2a2211"/></g><g transform="translate(52 72) scale(0.8)"><path d="M-11 0 L0 -11 L11 0Z" fill="#8a6d2e"/><rect x="-8" y="0" width="16" height="11" fill="#6a5322"/><rect x="-2" y="4" width="4" height="7" fill="#2a2211"/></g><g transform="translate(76 72) scale(0.9)"><path d="M-11 0 L0 -11 L11 0Z" fill="#8a6d2e"/><rect x="-8" y="0" width="16" height="11" fill="#6a5322"/><rect x="-2" y="4" width="4" height="7" fill="#2a2211"/></g><g transform="translate(96 72)"><path d="M0 -16 L8 0H-8Z" fill="#2f7d5b"/><path d="M0 -9 L11 4H-11Z" fill="#276b4d"/><rect x="-1.4" y="2" width="2.8" height="6" fill="#3a2f1b"/></g></g><g class="cityside"><rect class="tower" x="170" y="56" width="10" height="16" rx="1.5" fill="#3b409f" style="--d:0.00s"/><rect x="172.5" y="60.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="175.8" y="60.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="184" y="19" width="10" height="53" rx="1.5" fill="#3b409f" style="--d:0.12s"/><rect x="186.5" y="23.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="189.8" y="23.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="186.5" y="31.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="189.8" y="31.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="186.5" y="39.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="189.8" y="39.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="186.5" y="47.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="189.8" y="47.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="186.5" y="55.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="189.8" y="55.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="198" y="24" width="10" height="48" rx="1.5" fill="#3b409f" style="--d:0.24s"/><rect x="200.5" y="28.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="203.8" y="28.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="200.5" y="36.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="203.8" y="36.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="200.5" y="44.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="203.8" y="44.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="200.5" y="52.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="203.8" y="52.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="200.5" y="60.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="203.8" y="60.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="212" y="29" width="10" height="43" rx="1.5" fill="#3b409f" style="--d:0.36s"/><rect x="214.5" y="33.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="217.8" y="33.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="214.5" y="41.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="217.8" y="41.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="214.5" y="49.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="217.8" y="49.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="214.5" y="57.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="217.8" y="57.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="226" y="34" width="10" height="38" rx="1.5" fill="#3b409f" style="--d:0.48s"/><rect x="228.5" y="38.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="231.8" y="38.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="228.5" y="46.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="231.8" y="46.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="228.5" y="54.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="231.8" y="54.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="228.5" y="62.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="231.8" y="62.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="240" y="39" width="10" height="33" rx="1.5" fill="#3b409f" style="--d:0.60s"/><rect x="242.5" y="43.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="245.8" y="43.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="242.5" y="51.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="245.8" y="51.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="242.5" y="59.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="245.8" y="59.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="254" y="44" width="10" height="28" rx="1.5" fill="#3b409f" style="--d:0.72s"/><rect x="256.5" y="48.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="259.8" y="48.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="256.5" y="56.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="259.8" y="56.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="256.5" y="64.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="259.8" y="64.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="268" y="49" width="10" height="23" rx="1.5" fill="#3b409f" style="--d:0.84s"/><rect x="270.5" y="53.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="273.8" y="53.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="270.5" y="61.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="273.8" y="61.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect class="tower" x="282" y="54" width="10" height="18" rx="1.5" fill="#3b409f" style="--d:0.96s"/><rect x="284.5" y="58.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="287.8" y="58.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/><rect x="284.5" y="66.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".8"/><rect x="287.8" y="66.0" width="2" height="2.4" fill="#ffe6a8" fill-opacity=".55"/></g><path id="migArc" d="M104 56 Q150 14 176 44" fill="none" stroke="#ffe6a8" stroke-opacity=".45" stroke-width="1.4" stroke-dasharray="5 4"/><circle class="mover" r="3.1" fill="#ffe6a8" style="--d:0.00s"><animateMotion dur="5.5s" begin="0.00s" repeatCount="indefinite" path="M104 56 Q150 14 176 44"/></circle><circle class="mover" r="3.1" fill="#ffe6a8" style="--d:1.10s"><animateMotion dur="5.5s" begin="1.10s" repeatCount="indefinite" path="M104 56 Q150 14 176 44"/></circle><circle class="mover" r="3.1" fill="#ffe6a8" style="--d:2.20s"><animateMotion dur="5.5s" begin="2.20s" repeatCount="indefinite" path="M104 56 Q150 14 176 44"/></circle><circle class="mover" r="3.1" fill="#ffe6a8" style="--d:3.30s"><animateMotion dur="5.5s" begin="3.30s" repeatCount="indefinite" path="M104 56 Q150 14 176 44"/></circle><circle class="mover" r="3.1" fill="#ffe6a8" style="--d:4.40s"><animateMotion dur="5.5s" begin="4.40s" repeatCount="indefinite" path="M104 56 Q150 14 176 44"/></circle><text class="pv-t mtag" x="60" y="98" text-anchor="middle">village</text><text class="pv-t mtag" x="230" y="98" text-anchor="middle">city</text></svg></div>
+        <div class="part-body">
+          <span class="hin-d">शहरीकरण</span>
+          <h3>Migration</h3>
+          <p>Villages hollow out, cities overflow — a farmer's son ends up sweeping floors 25&nbsp;km from the milk and ghee he grew up on.</p>
+          <div class="part-chips"><span>25 km from home</span><span>Villages emptying</span></div>
+        </div>
+      </article>
+      <article class="part-card" data-reveal>
+        <div class="part-vis"><div class="part-num">05</div><svg class="pv-svg" viewBox="0 0 300 104" role="img" aria-label="The nine-square model block: cities and farmland around a forest core" preserveAspectRatio="xMidYMid meet"><rect width="300.0" height="104.0" fill="url(#pDawn)"/><rect class="mcell" x="112.0" y="14.0" width="24.0" height="24.0" rx="3" fill="#3f9d6c" style="--d:0.22s"/><rect class="mcell" x="138.0" y="14.0" width="24.0" height="24.0" rx="3" fill="#2b2f80" style="--d:0.11s"/><rect x="147.4" y="23.4" width="5.2" height="5.2" rx="1" fill="#4b93cc"/><rect class="mcell" x="164.0" y="14.0" width="24.0" height="24.0" rx="3" fill="#3f9d6c" style="--d:0.22s"/><rect class="mcell" x="112.0" y="40.0" width="24.0" height="24.0" rx="3" fill="#2b2f80" style="--d:0.11s"/><rect x="121.4" y="49.4" width="5.2" height="5.2" rx="1" fill="#4b93cc"/><rect class="mcell" x="138.0" y="40.0" width="24.0" height="24.0" rx="3" fill="#0c2b1b" style="--d:0.00s"/><path d="M144.0 57.0 l3.4 -7 l3.4 7Z" fill="#2f7d5b" fill-opacity=".9"/><path d="M150.0 57.0 l3.4 -7 l3.4 7Z" fill="#2f7d5b" fill-opacity=".9"/><path d="M156.0 57.0 l3.4 -7 l3.4 7Z" fill="#2f7d5b" fill-opacity=".9"/><rect class="mcell" x="164.0" y="40.0" width="24.0" height="24.0" rx="3" fill="#2b2f80" style="--d:0.11s"/><rect x="173.4" y="49.4" width="5.2" height="5.2" rx="1" fill="#4b93cc"/><rect class="mcell" x="112.0" y="66.0" width="24.0" height="24.0" rx="3" fill="#3f9d6c" style="--d:0.22s"/><rect class="mcell" x="138.0" y="66.0" width="24.0" height="24.0" rx="3" fill="#2b2f80" style="--d:0.11s"/><rect x="147.4" y="75.4" width="5.2" height="5.2" rx="1" fill="#4b93cc"/><rect class="mcell" x="164.0" y="66.0" width="24.0" height="24.0" rx="3" fill="#3f9d6c" style="--d:0.22s"/><rect x="109.0" y="11.0" width="82.0" height="82.0" rx="6" fill="none" stroke="#17492f" stroke-opacity=".55" stroke-width="1.6"/><circle class="mreach" cx="150.0" cy="26.0" r="4" fill="none" stroke="#0f5c3c" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="3 2.6" vector-effect="non-scaling-stroke" style="--d:0.00s"/><circle class="mreach" cx="124.0" cy="52.0" r="4" fill="none" stroke="#0f5c3c" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="3 2.6" vector-effect="non-scaling-stroke" style="--d:0.95s"/><circle class="mreach" cx="176.0" cy="52.0" r="4" fill="none" stroke="#0f5c3c" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="3 2.6" vector-effect="non-scaling-stroke" style="--d:1.90s"/><circle class="mreach" cx="150.0" cy="78.0" r="4" fill="none" stroke="#0f5c3c" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="3 2.6" vector-effect="non-scaling-stroke" style="--d:2.85s"/><path class="leaf5" d="M16 12 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:0.00s"/><path class="leaf5" d="M60 20 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:0.80s"/><path class="leaf5" d="M104 28 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:1.60s"/><path class="leaf5" d="M148 12 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:2.40s"/><path class="leaf5" d="M192 20 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:3.20s"/><path class="leaf5" d="M236 28 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:4.00s"/><path class="leaf5" d="M280 12 q6 -5 12 0 q-6 5 -12 0Z" fill="#2f7d5b" fill-opacity=".3" style="--d:4.80s"/></svg></div>
+        <div class="part-body">
+          <span class="hin-d">निवारण</span>
+          <h3>Redressal</h3>
+          <p>The Total Solution itself — a self-reliant city ringed by farmland and forest, built at walking-distance scale.</p>
+          <div class="part-chips"><span>5 km to everything</span><span>78.7% left green</span></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="panch" id="panch" data-reveal>
+      <div class="panch-head">
+        <span class="panch-eyebrow">पृष्ठ 3 · भाग 1 की पहली पंक्ति</span>
+        <p class="panch-q" lang="hi">आपको <b>भगवान</b> शब्द का अर्थ पता है? — शायद नहीं!<br>अगर हम <b>भगवान</b> शब्द का संधि-विच्छेद करें तो:—</p>
+        <p class="panch-sub">The document opens its first chapter by taking the word <i>Bhagwaan</i> apart. Each syllable is one of the five elements — which is why, in its argument, harming nature and harming God are the same act.</p>
       </div>
-      <div class="part-card" data-reveal>
-        <div class="part-num">02</div>
-        <div class="part-icon">🚗</div>
-        <span class="hin-d">वाहन</span>
-        <h3>Automobiles</h3>
-        <p>Roads that carry more grief than distance — over a lakh lives lost a year — and a village life traded for a commute.</p>
+      <div class="panch-word" aria-hidden="true">
+        <span style="--d:.10s">भ</span><i>+</i><span style="--d:.22s">ग</span><i>+</i><span style="--d:.34s">व</span><i>+</i><span style="--d:.46s">अ</span><i>+</i><span style="--d:.58s">न</span><i class="eq">=</i><span class="whole" style="--d:.74s">भगवान</span>
       </div>
-      <div class="part-card" data-reveal>
-        <div class="part-num">03</div>
-        <div class="part-icon">🏭</div>
-        <span class="hin-d">औद्योगीकरण</span>
-        <h3>Industrialisation</h3>
-        <p>When production turns into marketing turns into distance from home — and automation quietly empties the shop floor.</p>
+      <div class="panch-grid">
+        <div class="panch-tile" style="--d:.10s"><span class="akshar" lang="hi">भ</span><span class="tattva" lang="hi">भूमि</span><span class="gloss">Earth</span></div>
+        <div class="panch-tile" style="--d:.22s"><span class="akshar" lang="hi">ग</span><span class="tattva" lang="hi">गगन</span><span class="gloss">Sky</span></div>
+        <div class="panch-tile" style="--d:.34s"><span class="akshar" lang="hi">व</span><span class="tattva" lang="hi">वायु</span><span class="gloss">Air</span></div>
+        <div class="panch-tile" style="--d:.46s"><span class="akshar" lang="hi">अ</span><span class="tattva" lang="hi">अग्नि</span><span class="gloss">Fire</span></div>
+        <div class="panch-tile" style="--d:.58s"><span class="akshar" lang="hi">न</span><span class="tattva" lang="hi">नीर</span><span class="gloss">Water</span></div>
       </div>
-      <div class="part-card" data-reveal>
-        <div class="part-num">04</div>
-        <div class="part-icon">🏙️</div>
-        <span class="hin-d">शहरीकरण</span>
-        <h3>Migration</h3>
-        <p>Villages hollow out, cities overflow — a farmer's son ends up sweeping floors 25&nbsp;km from the milk and ghee he grew up on.</p>
-      </div>
-      <div class="part-card" data-reveal>
-        <div class="part-num">05</div>
-        <div class="part-icon">🌾</div>
-        <span class="hin-d">निवारण</span>
-        <h3>Redressal</h3>
-        <p>The Total Solution itself — a self-reliant city ringed by farmland and forest, built at walking-distance scale.</p>
-      </div>
+      <p class="panch-foot" lang="hi">इन्हीं पंच तत्वों से इस पृथ्वी नामक रूप का प्राकृतिक अवतार हुआ है।
+        <span class="en">“It is out of these five elements that this form we call Earth came naturally into being.”</span></p>
+      <p class="panch-src">Total Solution · पृष्ठ 3 · भाग 1 — जलवायु परिवर्तन / Climate Change</p>
     </div>
   </div>
 </section>
@@ -1410,7 +1596,7 @@ footer a:hover{text-decoration:underline}
   });
 
   // reveal on scroll
-  var revealEls = document.querySelectorAll('[data-reveal],[data-reveal-scale],#grid15,#bands');
+  var revealEls = document.querySelectorAll('[data-reveal],[data-reveal-scale],#grid15,#bands,.part-card,.panch');
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if (entry.isIntersecting) {
